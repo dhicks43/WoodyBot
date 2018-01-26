@@ -1,21 +1,15 @@
 import asyncio, aiohttp, os, random, discord
 
-'''@client.async_event
-async def snatchWeave(username):
+def startMarkov(user):
+	dictname = user + "Dictionary.txt"
+	
+	try:
+		f = open(dictname, "r")
 
+	except IOError:
+		print(dictname + " doesn't exist!")
+		return "empty"
 
-def genMarkovText(textfile){
-	writeTo = open("audent.txt","r")
-	readFrom = open(textFile, "w")
-
-
-
-}'''
-
-#format = { [id, timestamp, author, content, embeddedLinks, attachments, channel, reactions[] ]}
-
-def startMarkov():
-	f = open("audenDictionary.txt", "r")
 	wordList = {}
 
 	for line in f:
@@ -186,6 +180,22 @@ def gibbieAuden():
 		if(bing[0] == "Kylirr"):
 			f.write(bing[1])
 
+
+'''
+Testing or broken functions
+@client.async_event
+async def snatchWeave(username):
+
+
+def genMarkovText(textfile){
+	writeTo = open("audent.txt","r")
+	readFrom = open(textFile, "w")
+
+
+
+}'''
+
+#format = { [id, timestamp, author, content, embeddedLinks, attachments, channel, reactions[] ]}
 
 
 

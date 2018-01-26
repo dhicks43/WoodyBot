@@ -1,15 +1,15 @@
-
-import discord
+import asyncio, aiohttp, os, random, discord
+import scraping, markov
 from markov import *
 
 client = discord.Client(max_messages = 500)
-
 f = open('credentials.txt', 'r')
 login_info = f.read().split(':')
 f.close()
 
 workingSent = ""
 channelList = {}
+	
 
 @client.async_event
 async def on_ready():
@@ -46,7 +46,7 @@ async def on_message(message):
 			if workingSent[1] == "WordCount":
 				await wordCount(workingSent[2])
 			if workingSent[1] == "GimmieWords":
-				await serverToJson()
+				await start_parse()
 			if workingSent[1] == "gg":
 				await grabGen()
 
@@ -63,6 +63,11 @@ async def on_message(message):
 			if (len(workingSent) >= 4): limBal = workingSent[3]
 			await statParse(workingSent[2], limVal)
 
+		if workingSent[1][-5:].lower() == "speak":
+			name = workingSent[1].split("s")
+			sentence = startMarkov(name[0])
+
+		'''
 		if workingSent[1].lower() == "audenspeak":
 			sentence = startMarkov()
 			await client.send_message(message.channel, sentence)
@@ -86,6 +91,17 @@ async def on_message(message):
 		if workingSent[1].lower() == "kylespeak":
 			sentence = startMarkovK()
 			await client.send_message(message.channel, sentence)
+		'''
+
+#Moderation functions
+@client.async_event
+async def on_message(message):
+	print(message.channel.name)
+	if (message.channel.name == "fa_inspo" and message.content != ""):
+		if message.content.startswith("http") or message.content.startswith("www"):
+			return
+		else:
+			await client.delete_message(message)
 
 
 @client.async_event
@@ -242,55 +258,8 @@ async def snatchWeave(username):
 
 
 @client.async_event
-async def serverToJson():
-	f = open("banana.json","a")
-
-	for channel in channelList:
-		workingMessages = client.logs_from(client.get_channel(channelList[channel]), limit=10000)
-		finishedParsing = 1
-		lastMessage = discord.Message
-		if channel == "general_discussion":
-			finishedParsing = 0
-
-		while (finishedParsing):
-			try:
-				async for message in workingMessages:
-					reactList = []
-					for i in message.reactions:
-						
-						reactList.append(i.emoji)
-						reactList.append(i.count)
-
-					currMessage = { 
-						"ID": message.id,
-						"Author" : message.author.name, 
-						"Content": message.content, 
-						"Embeds": message.embeds, 
-						"Attachments": message.attachments, 
-						"Channel": message.channel.name, 
-						"Reactions": reactList
-						}
-
-					f.write(str(currMessage) + "\n")
-
-				moreCheck = 0
-				async for i in client.logs_from(client.get_channel(channelList[channel]), before=lastMessage, limit=10):
-					moreCheck += 1
-
-				if moreCheck > 0:
-					print("Adding 10000 more messages for channel " + lastMessage.channel.name + "...")
-					workingMessages = client.logs_from(client.get_channel(channelList[channel]), before=lastMessage, limit=10000)
-				else:
-					print("Finished Parsing " + lastMessage.channel.name)
-					finishedParsing = 0
-
-			except discord.errors.Forbidden:
-				print("Don't have acess to " + channel + "!")
-				finishedParsing = 0
-
-			except discord.errors.HTTPException:
-				print ("Something Broke Processing this: ", message.channel.name)
-				finishedParsing = 0
+async def start_parse():
+	await scraping.serverToJson(client, channelList)
 
 @client.async_event
 async def grabGen():
@@ -317,7 +286,6 @@ async def grabGen():
 			print("Finished parsing!")
 
 	f.close()
-
 
 
 
