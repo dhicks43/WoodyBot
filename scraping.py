@@ -16,17 +16,12 @@ async def serverToJson(client, channelList):
 					reactList = []
 					for i in message.reactions:
 						
-						reactList.append(i.emoji)
+						#windows has a problem with emoji
+						reactList.append(i.emoji.id)
 						reactList.append(i.count)
-
-					currMessage = str("ID"+ message.id +
-					 					"Timestamp"+ message.timestamp.year +
-					 					"Author" + message.author.name +
-					 					"Content" + message.content +  
-					 					"Embeds" + message.embeds +  
-					 					"Attachments" + message.attachments +  
-					 					"Channel" + message.channel.name +  
-					 					"Reactions" + str(reactList) + "\n")
+						content = message.content
+					'''format = { [id, timestamp, author, content, embeddedLinks, attachments, channel, reactions[] ]}'''
+					currMessage = message.id + "," + str(message.timestamp.year) + "," + message.author.name + "," + message.content + "," + " ".join(str(v) for v in message.embeds) + "," + " ".join(str(v) for v in message.attachments) + "," + message.channel.name + "," + " ".join(str(v) for v in reactList) + "\n"
 					
 
 					f.write(currMessage)

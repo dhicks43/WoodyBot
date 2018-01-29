@@ -92,17 +92,11 @@ async def on_message(message):
 			sentence = startMarkovK()
 			await client.send_message(message.channel, sentence)
 		'''
-
-#Moderation functions
-@client.async_event
-async def on_message(message):
-	print(message.channel.name)
 	if (message.channel.name == "fa_inspo" and message.content != ""):
 		if message.content.startswith("http") or message.content.startswith("www"):
 			return
 		else:
 			await client.delete_message(message)
-
 
 @client.async_event
 async def statParse(channelName, limitVal):
