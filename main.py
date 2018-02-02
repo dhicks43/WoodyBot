@@ -121,18 +121,23 @@ async def statParse(channelName, limitVal):
 
 
 @client.async_event
-async def channelDownload():
-	if not os.path.exists('pictures'):
-		os.makedirs('pictures')
+async def channelDownload(channelName):
+	if channelName in channelList:
+		tempWorkPath = "pictures/" + channelName
+		if not os.path.exists(tempWorkPath):
+			os.makedirs(tempWorkPath)
+	else:
+		print ("something wrong happened")
+		return
 
-	workingPath = os.path.join(os.getcwd(), 'pictures')
+	workingPath = os.path.join(os.getcwd(), tempWorkPath)
 
 	imageCounter = 0;
-	finalName = "";
-
+	finalName = ""
 	blicky = []
 
-	totalLogs = client.logs_from(client.get_channel("353132552707506178"), limit=10000)
+	
+	totalLogs = client.logs_from(client.get_channel(channelList[channelName]), limit=10000)
 	async for i in totalLogs:
 		if i.attachments != []:
 			if (i.attachments[0]['filename'] == 'image.png' or i.attachments[0]['filename'] == 'image.jpg'):						
@@ -145,7 +150,8 @@ async def channelDownload():
 			blicky.append([os.path.join(workingPath, finalName),i.attachments[0]['url']])
 
 	for i in blicky:
-		await download_file(i[0],i[1]);			
+		await download_file(i[0],i[1]);		
+	
 
 def write_to_file(filename, content):
 	print("writing to ", filename)
