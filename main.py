@@ -10,7 +10,8 @@ f.close()
 workingSent = ""
 channelList = {}
 	
-
+#Sets up a dict of servers and channels
+#Format: { channelName:channel id}
 @client.async_event
 async def on_ready():
 	for server in client.servers:
@@ -21,6 +22,7 @@ async def on_ready():
 	print ("We're live!")
 	await client.change_presence()
 
+#Sets the bot to do certain behavior when it reads a message
 @client.async_event
 async def on_message(message):
 	if message.content.lower().find('woodybot') != -1:
@@ -48,7 +50,9 @@ async def on_message(message):
 			if workingSent[1] == "GimmieWords":
 				await start_parse()
 			if workingSent[1] == "gg":
-				await grabGen()
+				await grab_gen()
+			if workingSent[1] == "indidict":
+				await dictToIndividual()
 
 
 		#Mod Privs
@@ -64,40 +68,17 @@ async def on_message(message):
 			await statParse(workingSent[2], limVal)
 
 		if workingSent[1][-5:].lower() == "speak":
-			name = workingSent[1].split("s")
+			name = workingSent[1].split("speak")
 			sentence = startMarkov(name[0])
-
-		'''
-		if workingSent[1].lower() == "audenspeak":
-			sentence = startMarkov()
 			await client.send_message(message.channel, sentence)
 
-		if workingSent[1].lower() == "metrospeak":
-			sentence = startMarkovM()
-			await client.send_message(message.channel, sentence)
-
-		if workingSent[1].lower() == "cazspeak":
-			sentence = startMarkovC()
-			await client.send_message(message.channel, sentence)
-
-		if workingSent[1].lower() == "b4cspeak":
-			sentence = startMarkovB4C()
-			await client.send_message(message.channel, sentence)
-
-		if workingSent[1].lower() == "turdspeak":
-			sentence = startMarkovT()
-			await client.send_message(message.channel, sentence)
-
-		if workingSent[1].lower() == "kylespeak":
-			sentence = startMarkovK()
-			await client.send_message(message.channel, sentence)
-		'''
 	if (message.channel.name == "fa_inspo" and message.content != ""):
 		if message.content.startswith("http") or message.content.startswith("www"):
 			return
 		else:
 			await client.delete_message(message)
 
+#Reads through a channel's messages and returns a string of the most reacted message
 @client.async_event
 async def statParse(channelName, limitVal):
 	workingID = channelList[channelName]
@@ -119,7 +100,7 @@ async def statParse(channelName, limitVal):
 	await client.send_message(mostReacted.channel, finalString )
 
 
-
+#Downloads all the images from an input channel
 @client.async_event
 async def channelDownload(channelName):
 	if channelName in channelList:
@@ -152,13 +133,14 @@ async def channelDownload(channelName):
 	for i in blicky:
 		await download_file(i[0],i[1]);		
 	
-
+#Helper function for the channelDownload
 def write_to_file(filename, content):
 	print("writing to ", filename)
 	f = open(filename, 'wb')
 	f.write(content)
 	f.close()
 
+#Helper function for channelDownload
 @client.async_event
 async def download_file(filename, url):
 	with aiohttp.ClientSession() as session:
@@ -166,6 +148,7 @@ async def download_file(filename, url):
 			content = await melon.read()
 			write_to_file(filename,content)
 
+#Counts the amount of times keyword is said in a particular channel
 @client.async_event
 async def wordCount(keyword):
 	govProp = {}
@@ -217,78 +200,16 @@ async def wordCount(keyword):
 	print ("The word " + keyword + " has been said a total of " + str(mostVal) + " times by " + mostWord + " (excluding general)")
 
 @client.async_event
-async def snatchWeave(username):
-	filename = username + "Dictionary.txt"
-	f = open(filename, 'a')
-
-	for channelName in channelList:
-		workingMessages = client.logs_from(client.get_channel(channelList[channelName]), limit=10000)
-		finishedParsing = 1
-		lastMessage = discord.Message
-		if channelName == "general_discussion" or channelName == "music_bot":
-			finishedParsing = 0
-			
-		while (finishedParsing):
-			try:
-				async for message in workingMessages:
-					lastMessage = message
-					if message.author.name == "Kylirr":
-						f.write(message.content+"\n")
-
-				moreCheck = 0
-				async for i in client.logs_from(client.get_channel(channelList[channelName]), before=lastMessage, limit=10):
-					moreCheck += 1
-
-				if moreCheck > 0:
-					print("Adding 10000 more messages for channel " + lastMessage.channel.name + "...")
-					workingMessages = client.logs_from(client.get_channel(channelList[channelName]), before=lastMessage, limit=10000)
-				else:
-					print("Finished Parsing " + lastMessage.channel.name)
-					finishedParsing = 0
-
-			except discord.errors.Forbidden:
-				print("Don't have acess to " + channelName + "!")
-				finishedParsing = 0
-
-
-
-
-	print("Weave has been snatched!")
-	f.close()
-
-
-@client.async_event
 async def start_parse():
-	await scraping.serverToJson(client, channelList)
+	await scraping.simpleChatGrab(client, channelList)
 
 @client.async_event
-async def grabGen():
-	print("Starting general grab...")
-	generalMessages = client.logs_from(client.get_channel(channelList["general_discussion"]), limit=100000)
-	f = open("THISISGENERAL.txt","a")
+async def grab_gen():
+	await scraping.grabGen(client, channelList)
 
-	moreCheck = 1
-	lastMessage = discord.Message
-
-	while(moreCheck):
-		async for message in generalMessages:
-			f.write(message.author.name + "::" + message.content + "\n")
-			lastMessage = message
-				
-		moreCheck = 0
-		async for i in client.logs_from(client.get_channel(channelList["general_discussion"]), before=lastMessage, limit=10):
-			moreCheck += 1
-
-		if moreCheck > 0:
-			print("Adding 100,000 more messages for channel...")
-			generalMessages = client.logs_from(client.get_channel(channelList["general_discussion"]), before=lastMessage, limit=100000)
-		else:
-			print("Finished parsing!")
-
-	f.close()
-
-
-
+@client.async_event
+async def dictToIndividual():
+	await scraping.masterToIndividual()
 
 
 client.run(login_info[0], login_info[1])
