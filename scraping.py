@@ -1,5 +1,6 @@
 import discord, os
 
+#Grabs text from channels not named general_discussion and music_bot
 async def simpleChatGrab(client, channelList):
 	
 	if not os.path.exists('dictionaries'):
@@ -51,6 +52,7 @@ async def simpleChatGrab(client, channelList):
 
 	f.close()
 
+#Function that grabs all the text from general discussion (500,000+ messages, crashes with the regular function)
 async def grabGen(client, channelList):
 
 	if not os.path.exists('dictionaries'):
@@ -80,7 +82,7 @@ async def grabGen(client, channelList):
 
 	f.close()
 
-
+#Creates individual dictionary files out of the master list
 async def masterToIndividual():
 	dictlist = open("dictionaries/masterList.txt","r")
 	

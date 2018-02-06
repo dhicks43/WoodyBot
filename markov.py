@@ -1,5 +1,6 @@
 import asyncio, aiohttp, os, random, discord
 
+#Takes an input of a user and returns a markov chain of their dictionary
 def startMarkov(user):
 	dictname = "dictionaries/" +user + "Dictionary.txt"
 	

@@ -28,49 +28,53 @@ async def on_message(message):
 	if message.content.lower().find('woodybot') != -1:
 		await client.add_reaction(message, "👀")
 
-		workingSent = message.content.split(" ")
-		for i in workingSent:
-			print (i)
-		isMod = 0
-		for i in message.author.roles:
-			if 'Moderators' == i.name:
-				isMod = 1
-
-		#Me Privs
-		if message.author.name == "WoodyAllen":
-			if workingSent[1] == "Download":
-				await channelDownload(workingSent[2])
-			if workingSent[1] == "DisplayChan":
-				for i in channelList:
-						print (i + ": " + channelList[i])
-			if workingSent[1] == "SnatchWeave":
-				await snatchWeave(workingSent[2])
-			if workingSent[1] == "WordCount":
-				await wordCount(workingSent[2])
-			if workingSent[1] == "GimmieWords":
-				await start_parse()
-			if workingSent[1] == "gg":
-				await grab_gen()
-			if workingSent[1] == "indidict":
-				await dictToIndividual()
-
-
-		#Mod Privs
-		
-
-		#Everyone Privs
-		if message.author.name == "auden":
-			await client.add_reaction(message, "🏳️‍🌈")
-
-		if workingSent[1] == "ViewStats":
-			limVal = 400
-			if (len(workingSent) >= 4): limBal = workingSent[3]
-			await statParse(workingSent[2], limVal)
-
-		if workingSent[1][-5:].lower() == "speak":
+		if message.content[-5:].lower() == "speak":
+			workingSent = message.content.split(" ", 1)
 			name = workingSent[1].split("speak")
 			sentence = startMarkov(name[0])
 			await client.send_message(message.channel, sentence)
+
+		else:
+
+			workingSent = message.content.split(" ")
+
+			for i in workingSent:
+				print (i)
+			isMod = 0
+			for i in message.author.roles:
+				if 'Moderators' == i.name:
+					isMod = 1
+
+			#Me Privs
+			if message.author.name == "WoodyAllen":
+				if workingSent[1] == "Download":
+					await channelDownload(workingSent[2])
+				if workingSent[1] == "DisplayChan":
+					for i in channelList:
+							print (i + ": " + channelList[i])
+				if workingSent[1] == "SnatchWeave":
+					await snatchWeave(workingSent[2])
+				if workingSent[1] == "WordCount":
+					await wordCount(workingSent[2])
+				if workingSent[1] == "GimmieWords":
+					await start_parse()
+				if workingSent[1] == "gg":
+					await grab_gen()
+				if workingSent[1] == "indidict":
+					await dictToIndividual()
+
+
+			#Mod Privs
+		
+
+			#Everyone Privs
+			if message.author.name == "auden":
+				await client.add_reaction(message, "🏳️‍🌈")
+
+			if workingSent[1] == "ViewStats":
+				limVal = 400
+				if (len(workingSent) >= 4): limBal = workingSent[3]
+				await statParse(workingSent[2], limVal)
 
 	if (message.channel.name == "fa_inspo" and message.content != ""):
 		if message.content.startswith("http") or message.content.startswith("www"):
