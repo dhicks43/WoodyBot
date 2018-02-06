@@ -8,3 +8,4 @@ pictures/*
 pictures
 *.pyc
 dictionaries/*
+.DS_Store
