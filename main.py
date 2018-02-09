@@ -28,11 +28,17 @@ async def on_message(message):
 	if message.content.lower().find('woodybot') != -1:
 		await client.add_reaction(message, "👀")
 
-		if message.content[-5:].lower() == "speak":
-			workingSent = message.content.split(" ", 1)
+		workingSent = message.content.split(" ", 1)
+		if message.content[1][-5:].lower() == "speak":
+			print (catch)
 			name = workingSent[1].split("speak")
 			sentence = startMarkov(name[0])
 			await client.send_message(message.channel, sentence)
+
+
+		if workingSent[1][:6] == "create":
+			music = workingSent[1].split(" ", 1)[1]
+			await scraping.createIndividual(client, channelList, music)
 
 		else:
 

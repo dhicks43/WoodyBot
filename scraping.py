@@ -1,5 +1,6 @@
 import discord, os
 
+bad_channels = {"general_discussion","music_bot"}
 #Grabs text from channels not named general_discussion and music_bot
 async def simpleChatGrab(client, channelList):
 	
@@ -12,7 +13,7 @@ async def simpleChatGrab(client, channelList):
 		workingMessages = client.logs_from(client.get_channel(channelList[channel]), limit=10000)
 		finishedParsing = 1
 		lastMessage = discord.Message
-		if channel == "general_discussion" or channel == "music_bot":
+		if channel in bad_channels:
 			finishedParsing = 0
 
 		while (finishedParsing):
@@ -97,7 +98,45 @@ async def masterToIndividual():
 	print("Finished!")
 
 
+async def createIndividual(client, channelList, username):
+	print(username)
+	filepath = "dictionaries/" + username + "Dictionary.txt"
+	f = open(filepath,"a")
 
+	for channel in channelList:
+		workingMessages = client.logs_from(client.get_channel(channelList[channel]), limit=10000)
+		finishedParsing = 1
+		lastMessage = discord.Message
+		if channel != "loef":
+			finishedParsing = 0
+
+		while (finishedParsing):
+			try:
+				async for message in workingMessages:
+					if message.author.name == username:
+						f.write(message.content + "\n")
+
+				moreCheck = 0
+				async for i in client.logs_from(client.get_channel(channelList[channel]), before=lastMessage, limit=10):
+					moreCheck += 1
+
+				if moreCheck > 0:
+					print("Adding 10000 more messages for channel " + lastMessage.channel.name + "...")
+					workingMessages = client.logs_from(client.get_channel(channelList[channel]), before=lastMessage, limit=10000)
+				else:
+					print("Finished Parsing " + lastMessage.channel.name)
+					finishedParsing = 0
+
+			except discord.errors.Forbidden:
+				print("Don't have acess to " + channel + "!")
+				finishedParsing = 0
+
+			except discord.errors.HTTPException:
+				print ("Something Broke Processing this: ", message.channel.name)
+				finishedParsing = 0
+		
+
+ 
 
 
 
