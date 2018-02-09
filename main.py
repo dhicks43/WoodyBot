@@ -29,8 +29,7 @@ async def on_message(message):
 		await client.add_reaction(message, "👀")
 
 		workingSent = message.content.split(" ", 1)
-		if message.content[1][-5:].lower() == "speak":
-			print (catch)
+		if message.content[-5:].lower() == "speak":
 			name = workingSent[1].split("speak")
 			sentence = startMarkov(name[0])
 			await client.send_message(message.channel, sentence)
