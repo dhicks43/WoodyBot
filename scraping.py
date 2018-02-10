@@ -1,13 +1,14 @@
 import discord, os
 
-bad_channels = {"general_discussion","music_bot"}
-#Grabs text from channels not named general_discussion and music_bot
+bad_channels = {"general_discussion", "bot_talk","fa_inspo","loef","rules"}
+#Grabs text from channels not in the bad channels list
 async def simpleChatGrab(client, channelList):
 	
-	if not os.path.exists('dictionaries'):
-		os.makedirs('dictionaries')
+	if not os.path.exists('json'):
+		os.makedirs('json')
 
-	f = open("dictionaries/masterList.txt","a")
+	f = open("json/jsonMasterlist.json","a")
+	f.write("[ ")
 
 	for channel in channelList:
 		workingMessages = client.logs_from(client.get_channel(channelList[channel]), limit=10000)
@@ -19,28 +20,32 @@ async def simpleChatGrab(client, channelList):
 		while (finishedParsing):
 			try:
 				async for message in workingMessages:
-					'''reactList = []
+					reactList = []
 					for i in message.reactions:
 						#windows has a problem with emoji
-						reactList.append(i.emoji.id)
+						reactList.append(i.emoji)
 						reactList.append(i.count)
-						content = message.content
+						
+					content = message.content.replace ('\n','').replace('\\', '/').replace('\"','\\\"')
 
-					format = { [id, timestamp, author, content, embeddedLinks, attachments, channel, reactions[] ]}'''
-					#currMessage = message.id + "," + str(message.timestamp.year) + "," + message.author.name + "," + message.content + "," + " ".join(str(v) for v in message.embeds) + "," + " ".join(str(v) for v in message.attachments) + "," + message.channel.name + "," + " ".join(str(v) for v in reactList) + "\n"
-					
-					currMessage = (message.author.name + ":::" + message.content + "\n")
-					f.write(currMessage)
+					#messages: {id: { timestamp, author, content, embeddedLinks, attachments, channel, reactions[] }} 
+					currMessage = " {\"ID\": \"" + str(message.id) + "\", \"Year\": \"" + str(message.timestamp.year) + "\", \"Name\": \"" + message.author.name + "\", \"Message Content\": \"" + content + "\", \"Channel\": \"" + message.channel.name + "\", \"Reactions\": \"" + " ".join(str(v) for v in reactList) + "\"},\n"
+					#currMessage = (message.author.name + ":::" + message.content + "\n")
+					if content != "":
+						f.write(currMessage)
+						
+					lastMessage = message
 
 				moreCheck = 0
 				async for i in client.logs_from(client.get_channel(channelList[channel]), before=lastMessage, limit=10):
 					moreCheck += 1
 
 				if moreCheck > 0:
-					print("Adding 10000 more messages for channel " + lastMessage.channel.name + "...")
+					print("Adding 10,000 more messages for channel " + lastMessage.channel.name + "...")
 					workingMessages = client.logs_from(client.get_channel(channelList[channel]), before=lastMessage, limit=10000)
+				
 				else:
-					print("Finished Parsing " + lastMessage.channel.name)
+					print("Finished parsing " + lastMessage.channel.name)
 					finishedParsing = 0
 
 			except discord.errors.Forbidden:
@@ -50,7 +55,8 @@ async def simpleChatGrab(client, channelList):
 			except discord.errors.HTTPException:
 				print ("Something Broke Processing this: ", message.channel.name)
 				finishedParsing = 0
-
+	f.write(" ]")
+	print("All doneso!")
 	f.close()
 
 #Function that grabs all the text from general discussion (500,000+ messages, crashes with the regular function)
