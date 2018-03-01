@@ -2,8 +2,7 @@ import discord, os
 
 bad_channels = {"general_discussion", "bot_talk","fa_inspo","loef","rules"}
 #Grabs text from channels not in the bad channels list
-async def simpleChatGrab(client, channelList):
-	
+async def basicChatGrab(client, channelList):
 	if not os.path.exists('json'):
 		os.makedirs('json')
 
@@ -60,13 +59,13 @@ async def simpleChatGrab(client, channelList):
 	f.close()
 
 #Function that grabs all the text from general discussion (500,000+ messages, crashes with the regular function)
-async def grabGen(client, channelList):
+async def largeChatGrab(client, channelName, channelList):
 
 	if not os.path.exists('dictionaries'):
 		os.makedirs('dictionaries')
 
 	print("Starting general grab...")
-	generalMessages = client.logs_from(client.get_channel(channelList["general_discussion"]), limit=100000)
+	generalMessages = client.logs_from(client.get_channel(channelList[channelName]), limit=100000)
 	f = open("dictionaries/generalList.txt","a")
 
 	moreCheck = 1
@@ -103,7 +102,7 @@ async def masterToIndividual():
 
 	print("Finished!")
 
-
+#Creates user defined dictionary
 async def createIndividual(client, channelList, username):
 	print(username)
 	filepath = "dictionaries/" + username + "Dictionary.txt"
@@ -120,7 +119,7 @@ async def createIndividual(client, channelList, username):
 			try:
 				async for message in workingMessages:
 					if message.author.name == username:
-						f.write(message.content + "\n")
+						f.write(str(message.content.encode("utf-8")) + "\n")
 
 				moreCheck = 0
 				async for i in client.logs_from(client.get_channel(channelList[channel]), before=lastMessage, limit=10):
@@ -140,7 +139,9 @@ async def createIndividual(client, channelList, username):
 			except discord.errors.HTTPException:
 				print ("Something Broke Processing this: ", message.channel.name)
 				finishedParsing = 0
-		
+
+			except UnicodeEncodeError:
+				print("Ran into a unicode error")
 
  
 
