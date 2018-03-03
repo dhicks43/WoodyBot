@@ -1,5 +1,5 @@
 from discord.ext import commands
-import basic, scraping, markov
+import basic, scraping, markov, redditFunctions
 import discord, os, aiohttp
 
 bot = commands.Bot(command_prefix='wb', description="WoodyBot mk 0.420")
@@ -41,6 +41,9 @@ async def on_message(message):
 
 	await bot.process_commands(message)
 
+@bot.command()
+async def kooda():
+	await bot.say("https://www.youtube.com/watch?v=yz7Cn3pHibo")
 
 '''Basic Commands'''
 @bot.command()
@@ -87,11 +90,32 @@ async def addDictionary(*, username: str):
 
 '''Markov Functions'''
 @bot.command()
-async def markovSimulate(username: str):
-	response = markov.startMarkove(username)
+async def markovSimulate(*, username: str):
+	response = markov.startMarkov(username)
 	await bot.say(response)
 
 
+'''Reddit-related Functions'''
+@bot.command(pass_context = True)
+async def fmfList(ctx, *args):
+	workingList = await redditFunctions.fmfList(ctx, args)
+	await bot.say(workingList[0])
+	workingDict = workingList[1]
+	print(type(workingDict))
+	
+	pChoice = await bot.wait_for_message(author=ctx.message.author)
 
+	if pChoice.content.startswith("url"):
+		pChoice = int(pChoice.content.split(" ")[1])
+
+		if pChoice > 0 and pChoice < len(workingDict):
+			choice = workingDict[pChoice]
+
+			await bot.say(choice)
+	
+
+@bot.command(pass_context = True)
+async def joined(ctx, *, member: discord.Member):
+    await ctx.bot.say('{0} joined on {0.joined_at}'.format(member))
 
 bot.run(login_info[0], login_info[1])
