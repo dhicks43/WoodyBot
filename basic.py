@@ -46,6 +46,8 @@ async def download_file(filename, url):
 			content = await melon.read()
 			write_to_file(filename,content)
 
+	
+
 #Parses a channel the most used emoji, currently broken
 '''
 async def statParse(channelName, limitVal):

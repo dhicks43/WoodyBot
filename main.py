@@ -46,8 +46,9 @@ async def kooda():
 	await bot.say("https://www.youtube.com/watch?v=yz7Cn3pHibo")
 
 '''Basic Commands'''
-@bot.command()
-async def hallo():
+@bot.command(pass_context = True)
+async def hallo(ctx):
+	print(ctx.message.author.id, ctx.message.author.name)
 	await bot.say("hallo")
 
 #Downloads all the images from an input channel
@@ -70,7 +71,7 @@ async def wordCount(keyword: str):
 
 '''Scraping functions'''
 @bot.command()
-async def basicChatGrab(channelList: dict):
+async def basicChatGrab():
 	await scraping.basicChatGrab(bot, channelList)
 
 @bot.command()
@@ -97,20 +98,18 @@ async def markovSimulate(*, username: str):
 
 '''Reddit-related Functions'''
 @bot.command(pass_context = True)
-async def fmfList(ctx, *args):
-	workingList = await redditFunctions.fmfList(ctx, args)
+async def redditList(ctx, *args):
+	workingList = await redditFunctions.listTop(ctx, args)
 	await bot.say(workingList[0])
+	
 	workingDict = workingList[1]
-	print(type(workingDict))
 	
 	pChoice = await bot.wait_for_message(author=ctx.message.author)
 
 	if pChoice.content.startswith("url"):
 		pChoice = int(pChoice.content.split(" ")[1])
-
 		if pChoice > 0 and pChoice < len(workingDict):
-			choice = workingDict[pChoice]
-
+			choice = workingDict[pChoice-1]
 			await bot.say(choice)
 	
 

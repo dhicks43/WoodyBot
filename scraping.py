@@ -3,34 +3,34 @@ import discord, os
 bad_channels = {"general_discussion", "bot_talk","fa_inspo","loef","rules"}
 #Grabs text from channels not in the bad channels list
 async def basicChatGrab(client, channelList):
-	if not os.path.exists('json'):
-		os.makedirs('json')
+	if not os.path.exists('csvs'):
+		os.makedirs('csvs')
 
-	f = open("json/jsonMasterlist.json","a")
-	f.write("[ ")
-
+	f = open("json/chatlog.csv","a")
+	print("prepairing channel")
 	for channel in channelList:
 		workingMessages = client.logs_from(client.get_channel(channelList[channel]), limit=10000)
 		finishedParsing = 1
 		lastMessage = discord.Message
+
 		if channel in bad_channels:
 			finishedParsing = 0
 
 		while (finishedParsing):
 			try:
 				async for message in workingMessages:
-					reactList = []
+					'''reactList = []
 					for i in message.reactions:
 						#windows has a problem with emoji
 						reactList.append(i.emoji)
-						reactList.append(i.count)
-						
-					content = message.content.replace ('\n','').replace('\\', '/').replace('\"','\\\"')
+						reactList.append(i.count)'''
 
-					#messages: {id: { timestamp, author, content, embeddedLinks, attachments, channel, reactions[] }} 
-					currMessage = " {\"ID\": \"" + str(message.id) + "\", \"Year\": \"" + str(message.timestamp.year) + "\", \"Name\": \"" + message.author.name + "\", \"Message Content\": \"" + content + "\", \"Channel\": \"" + message.channel.name + "\", \"Reactions\": \"" + " ".join(str(v) for v in reactList) + "\"},\n"
+					#Message Format: id:::timestamp:::author:::content:::embeddedLinks:::attachments:::channel:::server
+					#currMessage = " {\"ID\": \"" + str(message.id) + "\", \"Year\": \"" + str(message.timestamp.year) + "\", \"Name\": \"" + message.author.name + "\", \"Message Content\": \"" + content + "\", \"Channel\": \"" + message.channel.name + "\", \"Reactions\": \"" + " ".join(str(v) for v in reactList) + "\"},\n"
 					#currMessage = (message.author.name + ":::" + message.content + "\n")
-					if content != "":
+
+					if message.content != "" and message.author.name != "UB3R-B0T":
+						currMessage = str(message.id)+ "|" + str(message.timestamp) + "|" + message.author.id + "|" + message.author.name + "|" + message.content.replace ('\n','')  + "|" + str(message.embeds) + "|" + message.channel.name + "|" + message.server.name + "\n";
 						f.write(currMessage)
 						
 					lastMessage = message
@@ -54,7 +54,7 @@ async def basicChatGrab(client, channelList):
 			except discord.errors.HTTPException:
 				print ("Something Broke Processing this: ", message.channel.name)
 				finishedParsing = 0
-	f.write(" ]")
+				
 	print("All doneso!")
 	f.close()
 
