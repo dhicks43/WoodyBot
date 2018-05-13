@@ -10,3 +10,7 @@ dictionaries/*
 .DS_Store
 json
 .DS_Store
+.idea/inspectionProfiles/Project_Default.xml
+*.xml
+*.iml
+legacy functions.txt

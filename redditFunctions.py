@@ -6,11 +6,18 @@ limit = 10
 defaultURL = "https://www.reddit.com/r/frugalmalefashion/top/.json?raw_json=1&sort=top&t=day&limit=10"
 '''
 
-#argument list comes in as 0, 1, or 2
-#If arg list length == 2, arg[0] = limit: int, arg[1] = subreddit: str
-#if arg list length == 1, arg[0] = limit: int
-#if arg list length == 0, defaultURL is used (Frugal Male Fashion, limit of 10)
-async def listTop(ctx, args):
+
+async def list_top(ctx, args):
+	"""
+	Is given a list of arguments and returns a list of URL links to the related subreddit
+
+	:param ctx: the current Discord client context
+	:param 2 args: arg[0] = limit, arg[1] = subreddit: str
+	:param 1 args: arg[0] = limit
+	:param 0 args: defaultURL is used (Frugal Male Fashion subreddit, limit of 10)
+	:return: list of the top limit number of reddit posts in the last 24 hours in the specified subreddit
+	"""
+
 	subreddit = "frugalmalefashion"
 	limit = 10
 
@@ -24,21 +31,18 @@ async def listTop(ctx, args):
 	if int(limit) > 25:
 		limit = str(25)
 
-
-	workingURL = "https://www.reddit.com/r/" + subreddit + "/top/.json?raw_json=1&sort=top&t=day&limit="+ str(limit)
+	working_url = "https://www.reddit.com/r/" + subreddit + "/top/.json?raw_json=1&sort=top&t=day&limit=" + str(limit)
 	
-	r = requests.get(workingURL, headers = {'User-agent': 'woodybot 0.420'})
+	r = requests.get(working_url, headers={'User-agent': 'woodybot 0.420'})
 	data = r.json()
-	dataArray = {}
-	finalOutput = ""
+	data_array = {}
+	final_output = ""
 
 	await ctx.bot.say("Printing the top " + str(limit) + " threads in the last 24 hours in subreddit " + subreddit + ":")
 	
 	for i, child in enumerate(data['data']['children']):
-		finalOutput += str(i+1) + ". " + child['data']['title'] + '\n'
-		dataArray[i] = child['data']['url']
+		final_output += str(i+1) + ". " + child['data']['title'] + '\n'
+		data_array[i] = child['data']['url']
 
-	responseList = [finalOutput, dataArray]
-	return responseList
-
-
+	response_list = [final_output, data_array]
+	return response_list
