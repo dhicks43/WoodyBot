@@ -1,219 +1,115 @@
-import asyncio, aiohttp, os, random, discord
-import scraping, markov
-from markov import *
+from discord.ext import commands
+import discord
+import basic
+import scraping
+import markov
+import redditFunctions
+import os
+import aiohttp
 
-client = discord.Client(max_messages = 500)
-f = open('credentials.txt', 'r')
-login_info = f.read().split(':')
-f.close()
+bot = commands.Bot(command_prefix='wb', description="WoodyBot mk 0.420")
+
+try:
+	f = open('credentials.txt', 'r')
+	login_info = f.read().split(':')
+	f.close()
+
+except IOError:
+	userVal = input("Please enter a username: ")
+	passVal = input("Please enter a password: ")
+	login_info = [userVal, passVal]
 
 workingSent = ""
-channelList = {}
-	
-#Sets up a dict of servers and channels
-#Format: { channelName:channel id}
-@client.async_event
+channel_list = {}
+
+
+# Sets up a dict of servers and channels
+# Format: { channelName:channel id}
+@bot.event
 async def on_ready():
-	for server in client.servers:
+	for server in bot.servers:
 		for channel in server.channels:
 			if channel.type == discord.ChannelType.text:
-				channelList[channel.name] = channel.id
+				channel_list[channel.name] = channel.id
 
-	print ("We're live!")
-	await client.change_presence()
+	print("We're live!")
 
-#Sets the bot to do certain behavior when it reads a message
-@client.async_event
+
+# On reading a message, parses the input for commands
+@bot.event
 async def on_message(message):
-	if message.content.lower().find('woodybot') != -1:
-		await client.add_reaction(message, "👀")
+	if message.author.name == "Stormagedon":
+		await bot.add_reaction(message, "🐎")
 
-		if message.content[-5:].lower() == "speak":
-			workingSent = message.content.split(" ", 1)
-			name = workingSent[1].split("speak")
-			sentence = startMarkov(name[0])
-			await client.send_message(message.channel, sentence)
-
-		else:
-
-			workingSent = message.content.split(" ")
-
-			for i in workingSent:
-				print (i)
-			isMod = 0
-			for i in message.author.roles:
-				if 'Moderators' == i.name:
-					isMod = 1
-
-			#Me Privs
-			if message.author.name == "WoodyAllen":
-				if workingSent[1] == "Download":
-					await channelDownload(workingSent[2])
-				if workingSent[1] == "DisplayChan":
-					for i in channelList:
-							print (i + ": " + channelList[i])
-				if workingSent[1] == "SnatchWeave":
-					await snatchWeave(workingSent[2])
-				if workingSent[1] == "WordCount":
-					await wordCount(workingSent[2])
-				if workingSent[1] == "GimmieWords":
-					await start_parse()
-				if workingSent[1] == "gg":
-					await grab_gen()
-				if workingSent[1] == "indidict":
-					await dictToIndividual()
-
-
-			#Mod Privs
-		
-
-			#Everyone Privs
-			if message.author.name == "auden":
-				await client.add_reaction(message, "🏳️‍🌈")
-
-			if workingSent[1] == "ViewStats":
-				limVal = 400
-				if (len(workingSent) >= 4): limBal = workingSent[3]
-				await statParse(workingSent[2], limVal)
-
-	if (message.channel.name == "fa_inspo" and message.content != ""):
+	if message.channel.name == "fa_inspo" and message.content != "":
 		if message.content.startswith("http") or message.content.startswith("www"):
 			return
 		else:
-			await client.delete_message(message)
+			await bot.delete_message(message)
 
-#Reads through a channel's messages and returns a string of the most reacted message
-@client.async_event
-async def statParse(channelName, limitVal):
-	workingID = channelList[channelName]
-	workingLog = client.logs_from(client.get_channel(workingID), limit=int(limitVal))
-	mostReacted = discord.Message
-	maxReacts = 0
-
-	async for wMess in workingLog:
-		if wMess.reactions != []:
-			reactTotal = 0
-			for react in wMess.reactions:
-				reactTotal += react.count
-
-			if reactTotal > maxReacts:
-				maxReacts = reactTotal
-				mostReacted = wMess
-
-	finalString = "Most reactions is \"" + mostReacted.content + "\" from " + mostReacted.author.name + " with a total of "+ str(maxReacts) + " reactions"
-	await client.send_message(mostReacted.channel, finalString )
+	await bot.process_commands(message)
 
 
-#Downloads all the images from an input channel
-@client.async_event
-async def channelDownload(channelName):
-	if channelName in channelList:
-		tempWorkPath = "pictures/" + channelName
-		if not os.path.exists(tempWorkPath):
-			os.makedirs(tempWorkPath)
-	else:
-		print ("something wrong happened")
-		return
+# [Basic Commands]
+# Downloads all the images from an input channel
+@bot.command()
+async def imageDownload(channel_name: str):
+	await basic.channel_download(bot, channel_name, channel_list)
 
-	workingPath = os.path.join(os.getcwd(), tempWorkPath)
 
-	imageCounter = 0;
-	finalName = ""
-	blicky = []
+@bot.command()
+async def kooda():
+	await bot.say("https://www.youtube.com/watch?v=yz7Cn3pHibo")
 
+
+# [Scraping Functions]
+# Downloads and formats chat not in the 'Bad Channels' array
+@bot.command()
+async def chatDownload():
+	await scraping.basic_chat_grab(bot, channel_list)
+
+
+# Downloads and formats chat from a specified channel
+@bot.command()
+async def large_chat_download(channel_name: str):
+	await scraping.large_chat_grab(bot, channel_name, channel_list)
+
+
+# Creates a text file containing the chats of a specific user
+@bot.command()
+async def create_user_dictionary():
+	await scraping.masterToInidividual()
+
+
+# [Markov Functions]
+@bot.command()
+async def mimic(*, username: str):
+	response = markov.startMarkov(username)
+	await bot.say(response)
+
+
+# [Reddit-related Functions]
+@bot.command(pass_context=True)
+async def redditList(ctx, *args):
+	top_list = await redditFunctions.list_top(ctx, args)
+	await bot.say(top_list[0])
 	
-	totalLogs = client.logs_from(client.get_channel(channelList[channelName]), limit=10000)
-	async for i in totalLogs:
-		if i.attachments != []:
-			if (i.attachments[0]['filename'] == 'image.png' or i.attachments[0]['filename'] == 'image.jpg'):						
-				tempName = i.attachments[0]['filename'].split(".")
-				finalName = tempName[0] + str(imageCounter) + "." + tempName[1]
-				imageCounter += 1
-			else:
-				finalName = i.attachments[0]['filename']
-
-			blicky.append([os.path.join(workingPath, finalName),i.attachments[0]['url']])
-
-	for i in blicky:
-		await download_file(i[0],i[1]);		
+	workingDict = top_list[1]
 	
-#Helper function for the channelDownload
-def write_to_file(filename, content):
-	print("writing to ", filename)
-	f = open(filename, 'wb')
-	f.write(content)
-	f.close()
+	pChoice = await bot.wait_for_message(author=ctx.message.author)
 
-#Helper function for channelDownload
-@client.async_event
-async def download_file(filename, url):
-	with aiohttp.ClientSession() as session:
-		async with session.get(url) as melon:
-			content = await melon.read()
-			write_to_file(filename,content)
+	if pChoice.content.startswith("url"):
+		pChoice = int(pChoice.content.split(" ")[1])
+		if pChoice > 0 and pChoice < len(workingDict):
+			choice = workingDict[pChoice-1]
+			await bot.say(choice)
+	
 
-#Counts the amount of times keyword is said in a particular channel
-@client.async_event
-async def wordCount(keyword):
-	govProp = {}
-	print("Starting word count")
-	for channelName in channelList:
-		workingMessages = client.logs_from(client.get_channel(channelList[channelName]), limit=10000)
-		print("Parsing ", channelName)
-		finishedParsing = 1
-
-		lastMessage = discord.Message
-		if channelName == "general_discussion":
-			finishedParsing = 0
-			
-		while (finishedParsing):
-			try:
-				async for message in workingMessages:
-					lastMessage = message
-					if message.content.lower().find(keyword) != -1:
-						if message.author.name not in govProp:
-							govProp[message.author.name] = 1
-						else:
-							govProp[message.author.name] = govProp[message.author.name] + 1
+@bot.command(pass_context=True)
+async def joined(ctx, *, member: discord.Member):
+	await ctx.bot.say('{0} joined on {0.joined_at}'.format(member))
 
 
-				moreCheck = 0
-				async for i in client.logs_from(client.get_channel(channelList[channelName]), before=lastMessage, limit=10):
-					moreCheck += 1
-
-				if moreCheck > 0:
-					print("Adding 10000 more messages for channel " + lastMessage.channel.name + "...")
-					workingMessages = client.logs_from(client.get_channel(channelList[channelName]), before=lastMessage, limit=10000)
-				else:
-					print("Finished Parsing " + lastMessage.channel.name)
-					finishedParsing = 0
-
-			except discord.errors.Forbidden:
-				print("Don't have acess to " + channelName + "!")
-				finishedParsing = 0
-
-	mostWord = ""
-	mostVal = 0
-
-	for i in govProp:
-		if govProp[i] > mostVal:
-			mostVal = govProp[i]
-			mostWord = i
 
 
-	print ("The word " + keyword + " has been said a total of " + str(mostVal) + " times by " + mostWord + " (excluding general)")
-
-@client.async_event
-async def start_parse():
-	await scraping.simpleChatGrab(client, channelList)
-
-@client.async_event
-async def grab_gen():
-	await scraping.grabGen(client, channelList)
-
-@client.async_event
-async def dictToIndividual():
-	await scraping.masterToIndividual()
-
-
-client.run(login_info[0], login_info[1])
+bot.run(login_info[0], login_info[1])

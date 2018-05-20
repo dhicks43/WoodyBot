@@ -4,8 +4,16 @@ __pycache__/messageCommands.cpython-36.pyc
 __pycache__/markov.cpython-36.pyc
 __pycache__/scraping.cpython-36.pyc
 banana.txt
-pictures/*
 pictures
 *.pyc
 dictionaries/*
 .DS_Store
+<<<<<<< HEAD
+json
+.DS_Store
+.idea/inspectionProfiles/Project_Default.xml
+*.xml
+*.iml
+legacy functions.txt
+=======
+>>>>>>> master
