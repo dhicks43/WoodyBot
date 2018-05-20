@@ -9,7 +9,7 @@ async def basic_chat_grab(client, channel_list):
 	f = open("csvs/chatlog.csv","a")
 	print("preparing channel")
 	for channel in channel_list:
-		working_messages = client.logs_from(client.get_channel(channel_list[channel]), limit=10_000)
+		working_messages = client.logs_from(client.get_channel(channel_list[channel]), limit=10000)
 		finished_parsing = 1
 		last_message = discord.Message
 
@@ -41,7 +41,7 @@ async def basic_chat_grab(client, channel_list):
 
 				if more_check > 0:
 					print("Adding 10,000 more messages for channel " + last_message.channel.name + "...")
-					working_messages = client.logs_from(client.get_channel(channel_list[channel]), before=last_message, limit=10_000)
+					working_messages = client.logs_from(client.get_channel(channel_list[channel]), before=last_message, limit=10000)
 				
 				else:
 					print("Finished parsing " + last_message.channel.name)
@@ -65,7 +65,7 @@ async def large_chat_grab(client, channelName, channelList):
 		os.makedirs('dictionaries')
 
 	print("Starting general grab...")
-	general_messages = client.logs_from(client.get_channel(channelList[channelName]), limit=100_000)
+	general_messages = client.logs_from(client.get_channel(channelList[channelName]), limit=100000)
 	f = open("dictionaries/generalList.txt","a")
 
 	more_check = 1
@@ -82,7 +82,7 @@ async def large_chat_grab(client, channelName, channelList):
 
 		if more_check > 0:
 			print("Adding 100,000 more messages for channel...")
-			general_messages = client.logs_from(client.get_channel(channelList["general_discussion"]), before=last_message, limit=100_000)
+			general_messages = client.logs_from(client.get_channel(channelList["general_discussion"]), before=last_message, limit=100000)
 		else:
 			print("Finished parsing!")
 
@@ -109,7 +109,7 @@ async def create_individual(client, channel_list, username):
 	f = open(filepath,"a")
 
 	for channel in channel_list:
-		working_messages = client.logs_from(client.get_channel(channel_list[channel]), limit=10_000)
+		working_messages = client.logs_from(client.get_channel(channel_list[channel]), limit=10000)
 		finished_parsing = 1
 		last_message = discord.Message
 		if channel != "loef":
@@ -127,7 +127,7 @@ async def create_individual(client, channel_list, username):
 
 				if moreCheck > 0:
 					print("Adding 10000 more messages for channel " + last_message.channel.name + "...")
-					working_messages = client.logs_from(client.get_channel(channel_list[channel]), before=last_message, limit=10_000)
+					working_messages = client.logs_from(client.get_channel(channel_list[channel]), before=last_message, limit=10000)
 				else:
 					print("Finished Parsing " + last_message.channel.name)
 					finished_parsing = 0
