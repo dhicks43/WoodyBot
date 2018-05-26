@@ -4,10 +4,18 @@ import basic
 import scraping
 import markov
 import redditFunctions
+import logging
 import os
 import aiohttp
 
-bot = commands.Bot(command_prefix='wb', description="WoodyBot mk 0.420")
+bot = commands.Bot(command_prefix='wb', description="WoodyBot mk 0.525")
+
+dLog = logging.getLogger('discord')
+dLog.setLevel(logging.INFO)
+hand = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+hand.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+dLog.addHandler(hand)
+
 
 try:
 	f = open('credentials.txt', 'r')
@@ -38,6 +46,9 @@ async def on_ready():
 # On reading a message, parses the input for commands
 @bot.event
 async def on_message(message):
+	if message.author.bot:
+		return
+
 	if message.author.name == "Stormagedon":
 		await bot.add_reaction(message, "🐎")
 
@@ -110,6 +121,4 @@ async def joined(ctx, *, member: discord.Member):
 	await ctx.bot.say('{0} joined on {0.joined_at}'.format(member))
 
 
-
-
-bot.run(login_info[0], login_info[1])
+bot.run(login_info[0])

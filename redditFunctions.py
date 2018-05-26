@@ -33,7 +33,7 @@ async def list_top(ctx, args):
 
 	working_url = "https://www.reddit.com/r/" + subreddit + "/top/.json?raw_json=1&sort=top&t=day&limit=" + str(limit)
 	
-	r = requests.get(working_url, headers={'User-agent': 'woodybot 0.420'})
+	r = requests.get(working_url, headers={'User-agent': 'woodybot 0.525'})
 	data = r.json()
 	data_array = {}
 	final_output = ""
