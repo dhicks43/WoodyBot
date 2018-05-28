@@ -5,6 +5,7 @@ import scraping
 import markov
 import redditFunctions
 import logging
+from copy import copy
 import os
 import aiohttp
 
@@ -140,8 +141,10 @@ async def makePing(ctx, *args):
 
 @bot.command()
 async def callPing(ctx, *args):
-	return_message = ping_list[ctx].pop()
-	for _ in ping_list[ctx]:
+	ping_message_copy = copy(ping_list[ctx])
+	return_message = ping_message_copy.pop()
+
+	for _ in ping_message_copy[ctx]:
 		return_message += " " + str("<@" + str(_) + ">")
 
 	await bot.say(return_message)
