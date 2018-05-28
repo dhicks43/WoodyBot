@@ -144,7 +144,7 @@ async def callPing(ctx, *args):
 	ping_message_copy = copy(ping_list[ctx])
 	return_message = ping_message_copy.pop()
 
-	for _ in ping_message_copy[ctx]:
+	for _ in ping_message_copy:
 		return_message += " " + str("<@" + str(_) + ">")
 
 	await bot.say(return_message)
