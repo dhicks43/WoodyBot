@@ -27,9 +27,8 @@ except IOError:
 	passVal = input("Please enter a password: ")
 	login_info = [userVal, passVal]
 
-workingSent = ""
 channel_list = {}
-
+ping_list = {}
 
 # Sets up a dict of servers and channels
 # Format: { channelName:channel id}
@@ -121,4 +120,31 @@ async def joined(ctx, *, member: discord.Member):
 	await ctx.bot.say('{0} joined on {0.joined_at}'.format(member))
 
 
-bot.run(login_info[0])
+@bot.command(pass_context=True)
+async def makePing(ctx, *args):
+	mention_id_list = [_ for _ in ctx.message.raw_mentions]
+
+	await bot.say("Please list a name for the command")
+	ping_name = await bot.wait_for_message(author=ctx.message.author)
+	ping_name = ping_name.content
+
+	await bot.say("Please name the alert message you the users to be pinged with")
+	ping_message = await bot.wait_for_message(author=ctx.message.author)
+	ping_message = ping_message.content
+
+	mention_id_list.append(ping_message)
+	ping_list[ping_name] = mention_id_list
+
+	await bot.say("Command \"{}\" created!".format(ping_name))
+
+
+@bot.command()
+async def callPing(ctx, *args):
+	return_message = ping_list[ctx].pop()
+	for _ in ping_list[ctx]:
+		return_message += " " + str("<@" + str(_) + ">")
+
+	await bot.say(return_message)
+
+
+bot.run(login_info[0], login_info[1])

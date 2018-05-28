@@ -10,6 +10,7 @@ A Discord bot for a server moderation and fun
 - chatDownload: Downloads and logs all chat messages
 - mimic: Use dictionaries generated from user chats to mimic another user's speech
 - redditList: Displays a list of the top 5 rated posts in a specified subreddit
-
+- makePing: Allows a user to create a ping setting
+- callPing: Allows a user to call a created ping
 
 ##
