@@ -7,7 +7,6 @@ banana.txt
 pictures
 *.pyc
 dictionaries/*
-.DS_Store
 <<<<<<< HEAD
 json
 .DS_Store
@@ -18,3 +17,5 @@ legacy functions.txt
 =======
 >>>>>>> master
 *.log
+.DS_Store
+venv/*
