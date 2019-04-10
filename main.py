@@ -1,5 +1,6 @@
 import discord
 import logging
+from pymongo import MongoClient
 from discord.ext import commands
 
 
@@ -13,10 +14,12 @@ class WoodyBot(commands.Bot):
 
         self.dLog = logging.getLogger('discord')
 
+        self.mongo_database = MongoClient().woodybot_db
+
     async def on_ready(self):
         # Sets up a dict of servers and channels
         # Format: { channelName:channel id}
-        self.bad_channels = ["general_discussion", "bot_talk", "fa_inspo", "loef", "rules"]
+        self.bad_channels = ["loef"]
 
         self.dLog.setLevel(logging.INFO)
         hand = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
@@ -28,9 +31,7 @@ class WoodyBot(commands.Bot):
                 if channel.type == discord.ChannelType.text:
                     bot.server_dict[channel.name] = channel.id
 
-
         print("We're live!")
-
 
     # On reading a message, parses the input for commands
     async def on_message(self, message):
@@ -40,22 +41,13 @@ class WoodyBot(commands.Bot):
         if message.author.name == "Stormagedon":
             await self.add_reaction(message, "🐎")
 
-        if message.channel.name == "fa_inspo" and message.content != "":
-            if message.content.startswith("http") or message.content.startswith("www"):
-                return
-
-            else:
-                await self.delete_message(message)
-
-        await self.process_commands(message)
-
 
 with open('credentials.txt', 'r') as f:
     login_info = f.read().split(':')
 
 bot = WoodyBot()
 
-installed_cogs = {"cogs.basic", "cogs.markov", "cogs.ping", "cogs.reddit", "cogs.scraping"}
+installed_cogs = {"cogs.basic", "cogs.markov", "cogs.reddit", "cogs.scraping"}
 for cog in installed_cogs:
     try:
         bot.load_extension(cog)
