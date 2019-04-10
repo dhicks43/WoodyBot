@@ -8,7 +8,8 @@ class MarkovCog:
 		self.bot = bot
 
 	@commands.command(name='mimic')
-	async def start_markov(self, user: str):
+	async def start_markov(self, *user: str):
+		user = ' '.join(user)
 		dictionary_name = "dictionaries/" + user + "Dictionary.txt"
 
 		try:

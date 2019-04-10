@@ -13,7 +13,7 @@ class ScrapingCog:
 		if not os.path.exists('csvs'):
 			os.makedirs('csvs')
 
-		f = open("csvs/chatlog.csv","a")
+		f = open("csvs/chatlog.csv", "a")
 		print("preparing channel")
 		for channel in channel_list:
 			working_messages = self.logs_from(self.get_channel(channel_list[channel]), limit=10_000)

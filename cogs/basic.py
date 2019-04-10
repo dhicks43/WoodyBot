@@ -1,5 +1,6 @@
 import os
 import discord
+from datetime import datetime
 import aiohttp
 
 from discord.ext import commands
@@ -9,54 +10,6 @@ class BasicCog:
 	def __init__(self, bot):
 		self.bot = bot
 
-	# Downloads all the images in a selected channel
-	@commands.command(name="channelDownload")
-	async def channel_download(self, channel_name: str):
-		print(self.bot.server_dict)
-		if channel_name in self.bot.server_dict:
-			temp_work_path = "pictures/" + channel_name
-			if not os.path.exists(temp_work_path):
-				os.makedirs(temp_work_path)
-
-		else:
-			print("Channel not found!")
-			return
-
-		working_path = os.path.join(os.getcwd(), temp_work_path)
-
-		image_counter = 0
-		filepath_url_combo = []
-
-		total_logs = self.bot.logs_from(self.bot.get_channel(self.bot.server_dict[channel_name]), limit=10000)
-
-		async for _ in total_logs:
-			if len(_.attachments) > 0:
-				if _.attachments[0]['filename'] == 'image.png' or _.attachments[0]['filename'] == 'image.jpg':
-					temp_name = _.attachments[0]['filename'].split(".")
-					final_name = temp_name[0] + str(image_counter) + "." + temp_name[1]
-					image_counter += 1
-
-				else:
-					final_name = _.attachments[0]['filename']
-
-				filepath_url_combo.append([os.path.join(working_path, final_name), _.attachments[0]['url']])
-
-		for _ in filepath_url_combo:
-			await self.download_file(_[0], _[1])
-
-	# Helper function for the channelDownload
-	async def write_to_file(self, filename, content):
-		print("writing to ", filename)
-		f = open(filename, 'wb')
-		f.write(content)
-		f.close()
-
-	async def download_file(self, filename, url):
-		with aiohttp.ClientSession() as session:
-			async with session.get(url) as grabbed_url:
-				content = await grabbed_url.read()
-				await self.write_to_file(filename, content)
-
 	@commands.command()
 	async def kooda(self):
 		await self.bot.say("https://www.youtube.com/watch?v=yz7Cn3pHibo")
@@ -65,6 +18,72 @@ class BasicCog:
 	async def joined(self, *, member: discord.Member):
 		await self.bot.say('{0} joined on {0.joined_at}'.format(member))
 
+	@commands.command(pass_context=True)
+	async def thread(self, ctx):  # thread_name: str, opening_message: str):
+		'''if len(self.bot.server_dict) < 60:
+			thread_name = thread_name.replace(" ", "_").lower()
+			await self.bot.create_channel(ctx.message.server, thread_name)
+			print(self.bot.get_channel(thread_name))'''
+		for _ in [_ for _ in self.bot.server_dict[ctx.message.server.name]]:
+			for key in _:
+				print(self.bot.get_channel(_[key]).type)
+		# if self.bot.get_channel(_[key]).type.category == "thread":
+		#	print(key)
+
+	@commands.command(name='delete_all', pass_context=True)
+	async def delet(self, ctx, *args):
+		await self.bot.say('Sure about that boss?')
+		msg = await self.bot.wait_for_message(author=ctx.message.author)
+		dog = datetime( 2018, 8, 4)
+		if msg.content == 'yeet':
+			for channel in self.bot.server_dict['Midnight Marauders']:
+				for bizza in channel:
+					try:
+						count = 0
+						async for i in self.bot.logs_from(channel[bizza], limit=500_000, before=dog):
+							if i.author.name == 'WoodyAllen':
+								print('Deleting: ', i)
+								await self.bot.delete_message(i)
+
+						print('Deleting', count, 'messages from', bizza)
+
+					except discord.errors.Forbidden:
+						print("Don't have acess to " + bizza + "!")
+
+			# working_messages = self.bot.server_dict[channel].history().get(author__name='WoodyAllen')
+			# for i in working_messages:
+			#	print(i)
+
+			'''while finished_parsing:
+				try:
+					async for message in working_messages:
+						if message.author.name == "WoodyAllen":
+							#delet
+							print("Message found!")
+
+					more_check = 0
+					async for i in self.bot.logs_from(self.bot.get_channel(channel_list[channel]), before=last_message,
+												  limit=10):
+						more_check += 1
+
+					if more_check > 0:
+						print("Adding 10,000 more messages for channel " + last_message.channel.name + "...")
+						working_messages = self.bot.logs_from(self.get_channel(channel_list[channel]), before=last_message,
+														  limit=10000)
+
+					else:
+						print("Finished parsing " + last_message.channel.name)
+						finished_parsing = 0
+
+				except discord.errors.Forbidden:
+					print("Don't have acess to " + channel + "!")
+					finished_parsing = 0
+
+				except discord.errors.HTTPException:
+					print("Something Broke Processing this: ", message.channel.name)
+					finished_parsing = 0'''
+
+			await self.bot.say(':dab:')
 
 def setup(bot):
 	bot.add_cog(BasicCog(bot))

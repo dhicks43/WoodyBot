@@ -1,61 +1,11 @@
-import discord
-import logging
-from discord.ext import commands
-
-
-class WoodyBot(commands.Bot):
-    def __init__(self):
-        super().__init__(command_prefix='wb', description="WoodyBot mk 0.525")
-        self.server_dict = {}
-        self.ping_dict = {}
-
-        self.bad_channels = []
-
-        self.dLog = logging.getLogger('discord')
-
-    async def on_ready(self):
-        # Sets up a dict of servers and channels
-        # Format: { channelName:channel id}
-        self.bad_channels = ["general_discussion", "bot_talk", "fa_inspo", "loef", "rules"]
-
-        self.dLog.setLevel(logging.INFO)
-        hand = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-        hand.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-        self.dLog.addHandler(hand)
-
-        for server in self.servers:
-            for channel in server.channels:
-                if channel.type == discord.ChannelType.text:
-                    bot.server_dict[channel.name] = channel.id
-
-
-        print("We're live!")
-
-
-    # On reading a message, parses the input for commands
-    async def on_message(self, message):
-        if message.author.bot:
-            return
-
-        if message.author.name == "Stormagedon":
-            await self.add_reaction(message, "🐎")
-
-        if message.channel.name == "fa_inspo" and message.content != "":
-            if message.content.startswith("http") or message.content.startswith("www"):
-                return
-
-            else:
-                await self.delete_message(message)
-
-        await self.process_commands(message)
-
+import cogs.woodybot as wb
 
 with open('credentials.txt', 'r') as f:
     login_info = f.read().split(':')
 
-bot = WoodyBot()
+bot = wb.WoodyBot()
 
-installed_cogs = {"cogs.basic", "cogs.markov", "cogs.ping", "cogs.reddit", "cogs.scraping"}
+installed_cogs = {"cogs.basic", "cogs.markov", "cogs.ping", "cogs.reddit", "cogs.scraping", "cogs.google"}
 for cog in installed_cogs:
     try:
         bot.load_extension(cog)

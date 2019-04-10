@@ -17,7 +17,7 @@ class RedditCog:
 
 		if p_choice.content.startswith("url"):
 			p_choice = int(p_choice.content.split(" ")[1])
-			if p_choice > 0 and p_choice < len(working_dict):
+			if p_choice > 0 and p_choice < len(working_dict) + 1:
 				choice = working_dict[p_choice - 1]
 				await self.bot.say(choice)
 
@@ -47,7 +47,7 @@ class RedditCog:
 
 		working_url = "https://www.reddit.com/r/" + subreddit + "/top/.json?raw_json=1&sort=top&t=day&limit=" + str(limit)
 
-		r = requests.get(working_url, headers={'User-agent': 'woodybot 0.525'})
+		r = requests.get(working_url, headers={'User-agent': self.bot.description})
 		data = r.json()
 		data_array = {}
 		final_output = ""
