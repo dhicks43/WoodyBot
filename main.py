@@ -14,7 +14,7 @@ class WoodyBot(commands.Bot):
 
         self.dLog = logging.getLogger('discord')
 
-        self.mongo_database = MongoClient().woodybot_db
+        # self.mongo_database = MongoClient().woodybot_db
 
     async def on_ready(self):
         # Sets up a dict of servers and channels
@@ -31,15 +31,16 @@ class WoodyBot(commands.Bot):
                 if channel.type == discord.ChannelType.text:
                     bot.server_dict[channel.name] = channel.id
 
+        print(bot.server_dict)
         print("We're live!")
 
     # On reading a message, parses the input for commands
-    async def on_message(self, message):
-        if message.author.bot:
-            return
-
-        if message.author.name == "Stormagedon":
-            await self.add_reaction(message, "🐎")
+    # async def on_message(self, message):
+    #     if message.author.bot:
+    #         return
+    #
+    #     if message.author.name == "Stormagedon":
+    #         await self.add_reaction(message, "🐎")
 
 
 with open('credentials.txt', 'r') as f:
@@ -47,7 +48,7 @@ with open('credentials.txt', 'r') as f:
 
 bot = WoodyBot()
 
-installed_cogs = {"cogs.basic", "cogs.markov", "cogs.reddit", "cogs.scraping"}
+installed_cogs = {"cogs.basic", "cogs.markov", "cogs.reddit", "cogs.scraping", "cogs.chadcity"}
 for cog in installed_cogs:
     try:
         bot.load_extension(cog)

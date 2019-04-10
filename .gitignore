@@ -19,3 +19,7 @@ legacy functions.txt
 *.log
 .DS_Store
 venv/*
+*.pyc
+*.pyc
+*.png
+*.pyc
